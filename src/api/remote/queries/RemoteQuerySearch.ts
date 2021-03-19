@@ -22,7 +22,7 @@ export class RemoteQuerySearch {
 
   @clv.IsOptional()
   @clv.IsNumber()
-  @clv.Min(1)
+  @clv.IsPositive()
   @clt.Type(() => Number)
   @nsg.ApiPropertyOptional()
   readonly pageNumber?: number;

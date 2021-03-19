@@ -18,25 +18,25 @@ export class SettingCore {
   }
 
   @clv.IsNumber()
-  @clv.Min(1)
+  @clv.IsPositive()
   @clt.Type(() => Number)
   @nsg.ApiProperty()
   readonly cacheTimeoutPage: number;
 
   @clv.IsNumber()
-  @clv.Min(1)
+  @clv.IsPositive()
   @clt.Type(() => Number)
   @nsg.ApiProperty()
   readonly cacheTimeoutSearch: number;
 
   @clv.IsNumber()
-  @clv.Min(1)
+  @clv.IsPositive()
   @clt.Type(() => Number)
   @nsg.ApiProperty()
   readonly cacheTimeoutSeries: number;
 
   @clv.IsNumber()
-  @clv.Min(1)
+  @clv.IsPositive()
   @clt.Type(() => Number)
   @nsg.ApiProperty()
   readonly cacheTimeoutStream: number;
@@ -46,13 +46,13 @@ export class SettingCore {
   readonly chromeHeadless: boolean;
 
   @clv.IsNumber()
-  @clv.Min(1)
+  @clv.IsPositive()
   @clt.Type(() => Number)
   @nsg.ApiProperty()
   readonly chromeTimeoutInactive: number;
 
   @clv.IsNumber()
-  @clv.Min(1)
+  @clv.IsPositive()
   @clt.Type(() => Number)
   @nsg.ApiProperty()
   readonly chromeTimeoutNavigation: number;
@@ -63,7 +63,7 @@ export class SettingCore {
   readonly chromeViewport: string;
 
   @clv.IsNumber()
-  @clv.Min(1)
+  @clv.IsPositive()
   @clt.Type(() => Number)
   @nsg.ApiProperty()
   readonly fetchTimeout: number;
