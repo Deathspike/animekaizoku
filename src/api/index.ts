@@ -1,3 +1,6 @@
+export * from './library/content/LibraryContentSeries';
+export * from './library/content/LibraryContentSeriesAutomation';
+export * from './library/content/LibraryContentSeriesEpisode';
 export * from './library/models/LibraryContextSection';
 export * from './library/models/LibraryContext';
 export * from './library/models/LibrarySectionSeries';
@@ -6,6 +9,9 @@ export * from './library/models/LibrarySeriesSeasonEpisode';
 export * from './library/models/LibrarySeriesSeason';
 export * from './library/models/LibrarySeriesAutomation';
 export * from './library/models/LibrarySeries';
+export * from './library/params/LibraryParamSection';
+export * from './library/params/LibraryParamSeries';
+export * from './library/params/LibraryParamSeriesEpisode';
 export * from './remote/models/RemoteProviderPageOption';
 export * from './remote/models/RemoteProviderPage';
 export * from './remote/models/RemoteProvider';

@@ -12,13 +12,13 @@ export class RemoteQueryPage {
   }
 
   @clv.IsString()
-  @clv.MinLength(1)
+  @clv.IsNotEmpty()
   @nsg.ApiProperty()
   readonly provider: string;
 
   @clv.IsOptional()
   @clv.IsString()
-  @clv.MinLength(1)
+  @clv.IsNotEmpty()
   @nsg.ApiPropertyOptional()
   readonly page?: string;
 

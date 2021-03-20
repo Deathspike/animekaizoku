@@ -11,12 +11,12 @@ export class RemoteQuerySearch {
   }
 
   @clv.IsString()
-  @clv.MinLength(1)
+  @clv.IsNotEmpty()
   @nsg.ApiProperty()
   readonly provider: string;
 
   @clv.IsString()
-  @clv.MinLength(1)
+  @clv.IsNotEmpty()
   @nsg.ApiProperty()
   readonly query: string;
 

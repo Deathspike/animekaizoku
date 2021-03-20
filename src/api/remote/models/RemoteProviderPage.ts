@@ -12,12 +12,12 @@ export class RemoteProviderPage {
   }
 
   @clv.IsString()
-  @clv.MinLength(1)
+  @clv.IsNotEmpty()
   @nsg.ApiProperty()
   readonly id: string;
 
   @clv.IsString()
-  @clv.MinLength(1)
+  @clv.IsNotEmpty()
   @nsg.ApiProperty()
   readonly label: string;
 
