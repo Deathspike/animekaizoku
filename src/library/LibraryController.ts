@@ -8,27 +8,36 @@ import * as nsg from '@nestjs/swagger';
 @nsg.ApiBadRequestResponse()
 @nsg.ApiInternalServerErrorResponse()
 export class LibraryController {
-  @app.ResponseValidator([app.api.LibraryContext])
+  private readonly libraryService: app.LibraryService;
+
+  constructor(libraryService: app.LibraryService) {
+    this.libraryService = libraryService;
+  }
+
+  @app.ResponseValidator(app.api.LibraryContext)
   @ncm.Get()
-  @nsg.ApiResponse({status: 200, type: [app.api.LibraryContext]})
-  contextGet() {
-    throw new Error();
+  @nsg.ApiResponse({status: 200, type: app.api.LibraryContext})
+  async contextGetAsync() {
+    return await this.libraryService.contextGetAsync();
   }
 
   @ncm.Post()
   @ncm.HttpCode(204)
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 409})
-  contextPost(@ncm.Body() model: app.api.LibraryContextSection) {
-    throw new Error(String(model));
+  async contextPostAsync(@ncm.Body() model: app.api.LibraryContextSection) {
+    if (await this.libraryService.contextPostAsync(model)) return;
+    throw new ncm.BadRequestException();
   }
 
   @ncm.Delete(':section')
   @ncm.HttpCode(204)
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 404})
-  sectionDelete(@ncm.Param() param: app.api.LibraryParamSection) {
-    throw new Error(String(param));
+  @nsg.ApiResponse({status: 409})
+  async sectionDeleteAsync(@ncm.Param() param: app.api.LibraryParamSection) {
+    if (await this.libraryService.sectionDeleteAsync(param.section)) return;
+    throw new ncm.NotFoundException();
   }
 
   @app.ResponseValidator([app.api.LibrarySection])

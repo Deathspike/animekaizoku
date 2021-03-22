@@ -5,7 +5,7 @@ import cors from 'cors'
 
 @ncm.Module({
   controllers: [app.LibraryController],
-  providers: []})
+  providers: [app.LibraryService]})
 export class LibraryModule implements ncm.NestModule {
   configure(consumer: ncm.MiddlewareConsumer) {
     consumer.apply(bodyParser.json()).forRoutes(app.LibraryController);
