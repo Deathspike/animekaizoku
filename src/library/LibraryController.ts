@@ -40,12 +40,14 @@ export class LibraryController {
     throw new ncm.NotFoundException();
   }
 
-  @app.ResponseValidator([app.api.LibrarySection])
+  @app.ResponseValidator(app.api.LibrarySection)
   @ncm.Get(':section')
-  @nsg.ApiResponse({status: 200, type: [app.api.LibrarySection]})
+  @nsg.ApiResponse({status: 200, type: app.api.LibrarySection})
   @nsg.ApiResponse({status: 404})
-  sectionGet(@ncm.Param() param: app.api.LibraryParamSection) {
-    throw new Error(String(param));
+  async sectionGetAsync(@ncm.Param() param: app.api.LibraryParamSection) {
+    const section = await this.libraryService.sectionGetAsync(param.section);
+    if (section) return section;
+    throw new ncm.NotFoundException();
   }
 
   @ncm.Post(':section')

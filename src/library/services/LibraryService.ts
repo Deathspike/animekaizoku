@@ -5,17 +5,20 @@ import path from 'path';
 
 @ncm.Injectable()
 export class LibraryService {
-  private readonly context: app.File<app.api.LibraryContext>;
+  private readonly file: app.File<app.api.LibraryContext>;
   private readonly lock: app.Lock;
+  private readonly sections: Record<string, app.Section>;
 
   constructor() {
-    this.context = new app.File(app.api.LibraryContext, path.join(os.homedir(), 'animesync', 'context.json'), this.createContext.bind(this))
+    this.file = new app.File(app.api.LibraryContext, path.join(os.homedir(), 'animeloyalty', 'context.json'), this.createContext.bind(this))
     this.lock = new app.Lock();
+    this.sections = {};
   }
 
   async contextGetAsync() {
     return await this.lock.runAsync(async () => {
-      const context = await this.context.getAsync();
+      const context = await this.file.getAsync();
+      this.synchronizeSections(context);
       return context;
     });
   }
@@ -23,9 +26,10 @@ export class LibraryService {
   async contextPostAsync(model: app.api.LibraryContextSection) {
     return await this.lock.runAsync(async () => {
       if (path.resolve(model.path) === model.path) {
-        const context = await this.context.getAsync();
+        const context = await this.file.getAsync();
         context.sections.push(model);
-        await this.context.saveAsync();
+        await this.file.setAsync(context);
+        this.synchronizeSections(context);
         return true;
       } else {
         return false;
@@ -33,13 +37,14 @@ export class LibraryService {
     });
   }
 
-  async sectionDeleteAsync(section: string) {
+  async sectionDeleteAsync(sectionName: string) {
     return await this.lock.runAsync(async () => {
-      const context = await this.context.getAsync();
-      const index = context.sections.findIndex(x => x.name === section);
+      const context = await this.file.getAsync();
+      const index = context.sections.findIndex(x => x.name === sectionName);
       if (index >= 0) {
         context.sections.splice(index, 1);
-        await this.context.saveAsync();
+        await this.file.setAsync(context);
+        this.synchronizeSections(context);
         return true;
       } else {
         return false;
@@ -47,15 +52,39 @@ export class LibraryService {
     });
   }
 
-  seriesUpdateAsync(_: string) {
+  async sectionGetAsync(sectionName: string) {
+    return await this.lock.runAsync(async () => {
+      const context = await this.file.getAsync();
+      this.synchronizeSections(context);
+      if (this.sections[sectionName]) {
+        return await this.sections[sectionName].getAsync();
+      } else {
+        return;
+      }
+    });
+  }
+
+  sectionPostAsync(_sectionName: string, _url: string) {
+    // TODO: Check URL uniqueness.
+  }
+
+  seriesUpdateAsync(_url: string) {
     // TODO: If the url changed, do a conflict resolution.
     // TODO: If title changed, do a move/conflict resolution.
   }
 
   private createContext() {
-    return new app.api.LibraryContext({
-      sections: [{name: 'library', path: app.settings.path.library}],
-      version: 1
-    });
+    const defaultPath = path.join(os.homedir(), 'animeloyalty', 'library');
+    const section = new app.api.LibraryContextSection({name: 'library', path: defaultPath});
+    return Promise.resolve(new app.api.LibraryContext({sections: [section], version: 1}));
+  }
+
+  private async synchronizeSections(context: app.api.LibraryContext) {
+    context.sections
+      .filter(x => !this.sections[x.name])
+      .forEach(x => this.sections[x.name] = new app.Section(x));
+    Object.keys(this.sections)
+      .filter(x => context.sections.every(y => y.name !== x))
+      .forEach(x => delete this.sections[x]);
   }
 }
