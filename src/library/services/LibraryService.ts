@@ -30,9 +30,9 @@ export class LibraryService {
         context.sections.push(model);
         await this.file.setAsync(context);
         this.synchronizeSections(context);
-        return true;
+        return app.StatusCode.Default;
       } else {
-        return false;
+        return app.StatusCode.Conflict;
       }
     });
   }
@@ -45,9 +45,9 @@ export class LibraryService {
         context.sections.splice(index, 1);
         await this.file.setAsync(context);
         this.synchronizeSections(context);
-        return true;
+        return app.StatusCode.Default;
       } else {
-        return false;
+        return app.StatusCode.NotFound;
       }
     });
   }
@@ -59,13 +59,21 @@ export class LibraryService {
       if (this.sections[sectionName]) {
         return await this.sections[sectionName].getAsync();
       } else {
-        return;
+        return app.StatusCode.NotFound;
       }
     });
   }
 
-  sectionPostAsync(_sectionName: string, _url: string) {
-    // TODO: Check URL uniqueness.
+  async sectionPostAsync(sectionName: string, url: string) {
+    return await this.lock.runAsync(async () => {
+      const context = await this.file.getAsync();
+      this.synchronizeSections(context);
+      if (this.sections[sectionName]) {
+        return await this.sections[sectionName].postAsync(url);
+      } else {
+        return app.StatusCode.NotFound;
+      }
+    });
   }
 
   seriesUpdateAsync(_url: string) {

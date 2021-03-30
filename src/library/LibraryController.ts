@@ -18,7 +18,7 @@ export class LibraryController {
   @ncm.Get()
   @nsg.ApiResponse({status: 200, type: app.api.LibraryContext})
   async contextGetAsync() {
-    return await this.libraryService.contextGetAsync();
+    return await this.libraryService.contextGetAsync().then(app.StatusCodeError.open);
   }
 
   @ncm.Post()
@@ -26,8 +26,7 @@ export class LibraryController {
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 409})
   async contextPostAsync(@ncm.Body() model: app.api.LibraryContextSection) {
-    if (await this.libraryService.contextPostAsync(model)) return;
-    throw new ncm.BadRequestException();
+    await this.libraryService.contextPostAsync(model).then(app.StatusCodeError.open);
   }
 
   @ncm.Delete(':section')
@@ -36,8 +35,7 @@ export class LibraryController {
   @nsg.ApiResponse({status: 404})
   @nsg.ApiResponse({status: 409})
   async sectionDeleteAsync(@ncm.Param() param: app.api.LibraryParamSection) {
-    if (await this.libraryService.sectionDeleteAsync(param.section)) return;
-    throw new ncm.NotFoundException();
+    await this.libraryService.sectionDeleteAsync(param.section).then(app.StatusCodeError.open);
   }
 
   @app.ResponseValidator(app.api.LibrarySection)
@@ -45,9 +43,7 @@ export class LibraryController {
   @nsg.ApiResponse({status: 200, type: app.api.LibrarySection})
   @nsg.ApiResponse({status: 404})
   async sectionGetAsync(@ncm.Param() param: app.api.LibraryParamSection) {
-    const section = await this.libraryService.sectionGetAsync(param.section);
-    if (section) return section;
-    throw new ncm.NotFoundException();
+    return await this.libraryService.sectionGetAsync(param.section).then(app.StatusCodeError.open);
   }
 
   @ncm.Post(':section')
@@ -55,8 +51,8 @@ export class LibraryController {
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 404})
   @nsg.ApiResponse({status: 409})
-  sectionPost(@ncm.Param() param: app.api.LibraryParamSection, @ncm.Body() model: app.api.LibraryContentSeries) {
-    throw new Error(String(param) + String(model));
+  async sectionPostAsync(@ncm.Param() param: app.api.LibraryParamSection, @ncm.Body() model: app.api.LibraryContentSeries) {
+    await this.libraryService.sectionPostAsync(param.section, model.url).then(app.StatusCodeError.open);
   }
 
   @ncm.Delete(':section/:seriesUrl')

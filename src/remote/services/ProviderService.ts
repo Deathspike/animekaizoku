@@ -26,7 +26,7 @@ export class ProviderService {
     return await this.providersAsync(async (providers) => {
       const provider = await this.findAsync(providers, x => x.contextAsync(), x => x.id === id);
       if (provider) return await provider.pageAsync(page, options, pageNumber);
-      throw new ncm.NotFoundException();
+      return app.StatusCode.NotFound;
     });
   }
 
@@ -34,7 +34,7 @@ export class ProviderService {
     return await this.providersAsync(async (providers) => {
       const provider = await this.findAsync(providers, x => x.contextAsync(), x => x.id === id);
       if (provider) return await provider.searchAsync(query, pageNumber);
-      throw new ncm.NotFoundException();
+      return app.StatusCode.NotFound;
     });
   }
 
@@ -42,7 +42,7 @@ export class ProviderService {
     return await this.providersAsync(async (providers) => {
       const provider = await this.findAsync(providers, x => x.isSeriesAsync(seriesUrl));
       if (provider) return await provider.seriesAsync(seriesUrl);
-      throw new ncm.NotFoundException();
+      return app.StatusCode.NotFound;
     });
   }
 
@@ -50,7 +50,7 @@ export class ProviderService {
     return await this.providersAsync(async (providers) => {
       const provider = await this.findAsync(providers, x => x.isStreamAsync(streamUrl));
       if (provider) return await provider.streamAsync(streamUrl);
-      throw new ncm.NotFoundException();
+      return app.StatusCode.NotFound;
     });
   }
   
