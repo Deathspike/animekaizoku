@@ -17,7 +17,7 @@ export class LibraryService {
 
   async contextGetAsync() {
     return await this.lock.runAsync(async () => {
-      const context = await this.file.getAsync();
+      const context = await this.file.readAsync();
       this.synchronizeSections(context);
       return context;
     });
@@ -26,9 +26,9 @@ export class LibraryService {
   async contextPostAsync(model: app.api.LibraryContextSection) {
     return await this.lock.runAsync(async () => {
       if (path.resolve(model.path) === model.path) {
-        const context = await this.file.getAsync();
+        const context = await this.file.readAsync();
         context.sections.push(model);
-        await this.file.setAsync(context);
+        await this.file.createOrUpdateAsync(context);
         this.synchronizeSections(context);
         return app.StatusCode.Default;
       } else {
@@ -39,11 +39,11 @@ export class LibraryService {
 
   async sectionDeleteAsync(sectionName: string) {
     return await this.lock.runAsync(async () => {
-      const context = await this.file.getAsync();
+      const context = await this.file.readAsync();
       const index = context.sections.findIndex(x => x.name === sectionName);
       if (index >= 0) {
         context.sections.splice(index, 1);
-        await this.file.setAsync(context);
+        await this.file.createOrUpdateAsync(context);
         this.synchronizeSections(context);
         return app.StatusCode.Default;
       } else {
@@ -54,22 +54,46 @@ export class LibraryService {
 
   async sectionGetAsync(sectionName: string) {
     return await this.lock.runAsync(async () => {
-      const context = await this.file.getAsync();
+      const context = await this.file.readAsync();
       this.synchronizeSections(context);
       if (this.sections[sectionName]) {
-        return await this.sections[sectionName].getAsync();
+        return await this.sections[sectionName].sectionGetAsync();
       } else {
         return app.StatusCode.NotFound;
       }
     });
   }
 
-  async sectionPostAsync(sectionName: string, url: string) {
+  async sectionPostAsync(sectionName: string, seriesUrl: string) {
     return await this.lock.runAsync(async () => {
-      const context = await this.file.getAsync();
+      const context = await this.file.readAsync();
       this.synchronizeSections(context);
       if (this.sections[sectionName]) {
-        return await this.sections[sectionName].postAsync(url);
+        return await this.sections[sectionName].sectionPostAsync(seriesUrl);
+      } else {
+        return app.StatusCode.NotFound;
+      }
+    });
+  }
+
+  async seriesDeleteAsync(sectionName: string, seriesUrl: string) {
+    return await this.lock.runAsync(async () => {
+      const context = await this.file.readAsync();
+      this.synchronizeSections(context);
+      if (this.sections[sectionName]) {
+        return await this.sections[sectionName].seriesDeleteAsync(seriesUrl);
+      } else {
+        return app.StatusCode.NotFound;
+      }
+    });
+  }
+
+  async seriesGetAsync(sectionName: string, seriesUrl: string) {
+    return await this.lock.runAsync(async () => {
+      const context = await this.file.readAsync();
+      this.synchronizeSections(context);
+      if (this.sections[sectionName]) {
+        return await this.sections[sectionName].seriesGetAsync(seriesUrl);
       } else {
         return app.StatusCode.NotFound;
       }

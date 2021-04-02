@@ -15,26 +15,26 @@ export class Section {
     this.series = {};
   }
   
-  async getAsync() {
+  async sectionGetAsync() {
     await this.initAsync();
     return new app.api.LibrarySection({
       name: this.section.name,
       path: this.section.path,
       series: await Promise.all(Object.values(this.series)
-        .map(x => x.getAsync())
+        .map(x => x.readAsync())
         .map(x => x.then(y => new app.api.LibrarySectionSeries({...y, unwatchedCount: fetchUnwatchedCount(y.seasons)}))))
     });
   }
 
-  async postAsync(url: string) {
+  async sectionPostAsync(seriesUrl: string) {
     await this.initAsync();
-    const response = await serverApi.remote.seriesAsync({url});
+    const response = await serverApi.remote.seriesAsync({url: seriesUrl});
     if (response.value && !this.series[response.value.url.toLowerCase()]) {
       const seriesUrl = response.value.url.toLowerCase();
       const seasons = parseSeries(response.value);
       const filePath = path.join(this.filePath, `${Buffer.from(seriesUrl).toString('base64')}.json`);
       const file = new app.File<app.api.LibrarySeries>(app.api.LibrarySeries, filePath);
-      await file.setAsync(new app.api.LibrarySeries({
+      await file.createOrUpdateAsync(new app.api.LibrarySeries({
         addedAt: Date.now(),
         episodeAddedAt: fetchEpisodeAddedAt(seasons),
         genres: response.value.genres,
@@ -48,6 +48,26 @@ export class Section {
       return app.StatusCode.Default;
     } else if (response.value) {
       return app.StatusCode.Conflict;
+    } else {
+      return app.StatusCode.NotFound;
+    }
+  }
+
+  async seriesDeleteAsync(seriesUrl: string) {
+    await this.initAsync();
+    if (this.series[seriesUrl.toLowerCase()]) {
+      await this.series[seriesUrl.toLowerCase()].deleteAsync();
+      delete this.series[seriesUrl.toLowerCase()];
+      return app.StatusCode.Default;
+    } else {
+      return app.StatusCode.NotFound;
+    }
+  }
+
+  async seriesGetAsync(seriesUrl: string) {
+    await this.initAsync();
+    if (this.series[seriesUrl.toLowerCase()]) {
+      return await this.series[seriesUrl.toLowerCase()].readAsync();
     } else {
       return app.StatusCode.NotFound;
     }

@@ -59,15 +59,15 @@ export class LibraryController {
   @ncm.HttpCode(204)
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 404})
-  seriesDelete(@ncm.Param() param: app.api.LibraryParamSeries) {
-    throw new Error(String(param));
+  async seriesDeleteAsync(@ncm.Param() param: app.api.LibraryParamSeries) {
+    await this.libraryService.seriesDeleteAsync(param.section, param.seriesUrl).then(app.StatusCodeError.open);
   }
 
   @ncm.Get(':section/:seriesUrl')
   @nsg.ApiResponse({status: 200, type: [app.api.LibrarySeries]})
   @nsg.ApiResponse({status: 404})
-  seriesGet(@ncm.Param() param: app.api.LibraryParamSeries) {
-    throw new Error(String(param));
+  async seriesGetAsync(@ncm.Param() param: app.api.LibraryParamSeries) {
+    return await this.libraryService.seriesGetAsync(param.section, param.seriesUrl).then(app.StatusCodeError.open);
   }
 
   @ncm.Patch(':section/:seriesUrl')

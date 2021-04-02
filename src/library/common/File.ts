@@ -16,7 +16,30 @@ export class File<T> {
     this.initializeAsync = initializeAsync;
   }
 
-  async getAsync() {
+  async createOrUpdateAsync(value: T) {
+    await app.ValidationError.validateAsync(this.cls, value);
+    const fileData = JSON.stringify(value, null, 2);
+    await fs.ensureDir(path.dirname(this.filePath));
+    await fs.writeFile(`${this.filePath}.tmp`, fileData);
+    await fs.move(`${this.filePath}.tmp`, this.filePath, {overwrite: true});
+    this.fileData = fileData;
+  }
+
+  async deleteAsync() {
+    try {
+      await fs.ensureDir(path.dirname(this.filePath));
+      await fs.remove(this.filePath);
+      delete this.fileData;
+    } catch (error) {
+      if (error && error.code === 'ENOENT') {
+        delete this.fileData;
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  async readAsync() {
     try {
       this.fileData ??= await fs.readFile(this.filePath, 'utf8');
       const value = clt.plainToClass(this.cls, JSON.parse(this.fileData));
@@ -25,7 +48,7 @@ export class File<T> {
     } catch (error) {
       if (error && error.code === 'ENOENT' && this.initializeAsync) try {
         const value = await this.initializeAsync();
-        await this.setAsync(value);
+        await this.createOrUpdateAsync(value);
         return value;
       } catch (error) {
         delete this.fileData;
@@ -37,12 +60,4 @@ export class File<T> {
     }
   }
 
-  async setAsync(value: T) {
-    await app.ValidationError.validateAsync(this.cls, value);
-    const fileData = JSON.stringify(value, null, 2);
-    await fs.ensureDir(path.dirname(this.filePath));
-    await fs.writeFile(`${this.filePath}.tmp`, fileData);
-    await fs.move(`${this.filePath}.tmp`, this.filePath, {overwrite: true});
-    this.fileData = fileData;
-  }
 }
