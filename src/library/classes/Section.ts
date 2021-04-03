@@ -72,6 +72,19 @@ export class Section {
     }
   }
 
+  async seriesPatchAsync(seriesUrl: string, automation?: app.api.LibraryContentSeriesAutomation) {
+    await this.initAsync();
+    if (this.series.exists(seriesUrl)) {
+      const file = this.series.get(seriesUrl);
+      const fileData = await file.getAsync();
+      return await file.setAsync(new app.api.LibrarySeries(fileData, {
+        automation: automation && new app.api.LibrarySeriesAutomation(fileData.automation, automation)
+      }));
+    } else {
+      return app.StatusCode.NotFound;
+    }
+  }
+
   private async initAsync() {
     if (this.series.entries().length) return;
     await fs.ensureDir(this.filePath);

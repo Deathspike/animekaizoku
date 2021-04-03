@@ -51,7 +51,7 @@ export class LibraryController {
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 404})
   @nsg.ApiResponse({status: 409})
-  async sectionPostAsync(@ncm.Param() param: app.api.LibraryParamSection, @ncm.Body() model: app.api.LibraryContentSeries) {
+  async sectionPostAsync(@ncm.Param() param: app.api.LibraryParamSection, @ncm.Body() model: app.api.LibraryContentSection) {
     await this.libraryService.sectionPostAsync(param.section, model.url).then(app.StatusCodeError.open);
   }
 
@@ -74,8 +74,8 @@ export class LibraryController {
   @ncm.HttpCode(204)
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 404})
-  seriesPatch(@ncm.Param() param: app.api.LibraryParamSeries, @ncm.Body() model: app.api.LibraryContentSeriesAutomation) {
-    throw new Error(String(param) + String(model));
+  async seriesPatchAsync(@ncm.Param() param: app.api.LibraryParamSeries, @ncm.Body() model: app.api.LibraryContentSeries) {
+    await this.libraryService.seriesPatchAsync(param.section, param.seriesUrl, model.automation).then(app.StatusCodeError.open);
   }
   
   @ncm.Put(':section/:seriesUrl')
@@ -90,14 +90,14 @@ export class LibraryController {
   @ncm.HttpCode(204)
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 404})
-  episodeDelete(@ncm.Param() param: app.api.LibraryParamSeriesEpisode) {
+  episodeDelete(@ncm.Param() param: app.api.LibraryParamEpisode) {
     throw new Error(String(param));
   }
 
   @ncm.Get(':section/:seriesUrl/:episodeUrl')
   @nsg.ApiResponse({status: 200, type: [app.api.RemoteStream]})
   @nsg.ApiResponse({status: 404})
-  episodeGet(@ncm.Param() param: app.api.LibraryParamSeriesEpisode) {
+  episodeGet(@ncm.Param() param: app.api.LibraryParamEpisode) {
     throw new Error(String(param));
   }  
   
@@ -105,7 +105,7 @@ export class LibraryController {
   @ncm.HttpCode(204)
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 404})
-  episodePatch(@ncm.Param() param: app.api.LibraryParamSeriesEpisode, @ncm.Body() model: app.api.LibraryContentSeriesEpisode) {
+  episodePatch(@ncm.Param() param: app.api.LibraryParamEpisode, @ncm.Body() model: app.api.LibraryContentSeriesEpisode) {
     throw new Error(String(param) + String(model));
   }
 }

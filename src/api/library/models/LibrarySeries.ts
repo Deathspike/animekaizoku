@@ -26,7 +26,7 @@ export class LibrarySeries {
   @clv.IsOptional()
   @clv.ValidateNested()
   @clt.Type(() => api.LibrarySeriesAutomation)
-  @nsg.ApiPropertyOptional({type: [api.LibrarySeriesAutomation]})
+  @nsg.ApiPropertyOptional({type: api.LibrarySeriesAutomation})
   readonly automation?: api.LibrarySeriesAutomation;
 
   @clv.IsOptional()
