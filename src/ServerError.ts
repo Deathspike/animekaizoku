@@ -19,7 +19,7 @@ export class ServerError implements ncm.ExceptionFilter {
       const value = {statusCode, message, ...error.data};
       response.status(statusCode).json(value);
       this.loggerService.debug(`HTTP/${request.httpVersion} ${statusCode} ${JSON.stringify(value)}`);
-    } else if (error instanceof app.StatusCodeError) {
+    } else if (error instanceof ncm.HttpException) {
       const message = error.stack ?? error.message;
       const statusCode = error.getStatus();
       const value = {statusCode, message};
