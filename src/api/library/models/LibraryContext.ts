@@ -11,7 +11,10 @@ export class LibraryContext {
   }
 
   validate?(value: Array<api.LibraryContextSection>) {
-    return value.every((x, xi) => value.every((y, yi) => xi === yi || x.name.toLowerCase() !== y.name.toLowerCase()));
+    return value.every((x, xi) => {
+      const lowerName = x.name.toLowerCase();
+      return value.every((y, yi) => xi === yi || lowerName !== y.name.toLowerCase())
+    });
   }
 
   @clv.IsArray()

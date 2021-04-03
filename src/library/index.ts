@@ -1,5 +1,6 @@
 export * from '../shared';
 export * from './classes/Section';
+export * from './common/Dictionary';
 export * from './common/File';
 export * from './common/Future';
 export * from './common/Lock';
