@@ -29,8 +29,7 @@ export class LibraryService {
         const context = await this.file.getAsync();
         context.sections.push(model);
         await this.file.setAsync(context);
-        this.synchronizeSections(context);
-        return app.StatusCode.Default;
+        return this.synchronizeSections(context);
       } else {
         return app.StatusCode.Conflict;
       }
@@ -44,8 +43,7 @@ export class LibraryService {
       if (index >= 0) {
         context.sections.splice(index, 1);
         await this.file.setAsync(context);
-        this.synchronizeSections(context);
-        return app.StatusCode.Default;
+        return this.synchronizeSections(context);
       } else {
         return app.StatusCode.NotFound;
       }

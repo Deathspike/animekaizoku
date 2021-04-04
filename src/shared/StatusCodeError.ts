@@ -9,7 +9,6 @@ export class StatusCodeError extends ncm.HttpException {
 
   static async open<T>(value: app.StatusCode | T) {
     switch (value) {
-      case app.StatusCode.Default: return;
       case app.StatusCode.NotFound: throw new StatusCodeError(value);
       case app.StatusCode.Conflict: throw new StatusCodeError(value);
       default: return value;

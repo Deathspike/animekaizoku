@@ -42,8 +42,7 @@ export class Section {
         title: response.value.title,
         url: response.value.url
       }));
-      this.series.set(response.value.url, file);
-      return app.StatusCode.Default;
+      return this.series.set(response.value.url, file);
     } else if (response.value) {
       return app.StatusCode.Conflict;
     } else {
@@ -55,8 +54,7 @@ export class Section {
     await this.initAsync();
     if (this.series.exists(seriesUrl)) {
       await this.series.get(seriesUrl).deleteAsync();
-      this.series.delete(seriesUrl);
-      return app.StatusCode.Default;
+      return this.series.delete(seriesUrl);
     } else {
       return app.StatusCode.NotFound;
     }
