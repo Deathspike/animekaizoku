@@ -112,9 +112,16 @@ export class LibraryService {
     });
   }
 
-  seriesUpdateAsync(_url: string) {
-    // TODO: If the url changed, do a conflict resolution.
-    // TODO: If title changed, do a move/conflict resolution.
+  async seriesPutAsync(sectionName: string, seriesUrl: string) {
+    return await this.lock.runAsync(async () => {
+      const context = await this.file.getAsync();
+      this.synchronizeSections(context);
+      if (this.sections.exists(sectionName)) {
+        return await this.sections.get(sectionName).seriesPutAsync(seriesUrl);
+      } else {
+        return app.StatusCode.NotFound;
+      }
+    });
   }
 
   private createContext() {

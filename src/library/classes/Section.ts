@@ -31,8 +31,7 @@ export class Section {
     const response = await serverApi.remote.seriesAsync({url: seriesUrl});
     if (response.value && !this.series.exists(response.value.url)) {
       const seasons = parseSeries(response.value);
-      const filePath = path.join(this.filePath, `${Buffer.from(response.value.url).toString('base64')}.json`);
-      const file = new app.File<app.api.LibrarySeries>(app.api.LibrarySeries, filePath);
+      const file = createFile(this.filePath, response.value.url);
       await file.setAsync(new app.api.LibrarySeries({
         addedAt: Date.now(),
         episodeAddedAt: fetchEpisodeAddedAt(seasons),
@@ -85,6 +84,27 @@ export class Section {
     }
   }
 
+  async seriesPutAsync(seriesUrl: string) {
+    await this.initAsync();
+    if (this.series.exists(seriesUrl)) {
+      const file = this.series.get(seriesUrl);
+      const series = await file.getAsync();
+      const response = await serverApi.remote.seriesAsync({url: seriesUrl});
+      if (response.value && response.value.url !== series.url) {
+        if (this.series.exists(response.value.url) && response.value.url.toLowerCase() !== series.url.toLowerCase()) return app.StatusCode.Conflict;
+        await this.updateAsync(createFile(this.filePath, response.value.url), response.value, series);
+        await file.deleteAsync();
+        return this.series.delete(seriesUrl);
+      } else if (response.value) {
+        return await this.updateAsync(file, response.value, series);
+      } else {
+        return app.StatusCode.NotFound;
+      }
+    } else {
+      return app.StatusCode.NotFound;
+    }
+  }
+
   private async initAsync() {
     if (this.series.entries().length) return;
     await fs.ensureDir(this.filePath);
@@ -94,6 +114,25 @@ export class Section {
       this.series.set(url, new app.File(app.api.LibrarySeries, filePath));
     }
   }
+
+  private async updateAsync(file: app.File<app.api.LibrarySeries>, remote: app.api.RemoteSeries, local: app.api.LibrarySeries) {
+    const seasons = parseSeries(remote, local);
+    await file.setAsync(new app.api.LibrarySeries(local, {
+      episodeAddedAt: fetchEpisodeAddedAt(seasons),
+      genres: remote.genres,
+      imageUrl: remote.imageUrl,
+      seasons: seasons,
+      synopsis: remote.synopsis,
+      title: remote.title,
+      url: remote.url
+    }));
+  }
+}
+
+function createFile(basePath: string, url: string) {
+  const fileName = Buffer.from(url).toString('base64');
+  const filePath = path.join(basePath, `${fileName}.json`);
+  return new app.File(app.api.LibrarySeries, filePath);
 }
 
 function fetchEpisodeAddedAt(seasons: Array<app.api.LibrarySeriesSeason>) {

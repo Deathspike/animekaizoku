@@ -82,8 +82,9 @@ export class LibraryController {
   @ncm.HttpCode(204)
   @nsg.ApiResponse({status: 204})
   @nsg.ApiResponse({status: 404})
-  seriesPut(@ncm.Param() param: app.api.LibraryParamSeries) {
-    throw new Error(String(param));
+  @nsg.ApiResponse({status: 409})
+  async seriesPutAsync(@ncm.Param() param: app.api.LibraryParamSeries) {
+    await this.libraryService.seriesPutAsync(param.section, param.seriesUrl).then(app.StatusCodeError.open);
   }
 
   @ncm.Delete(':section/:seriesUrl/:episodeUrl')
