@@ -1,6 +1,7 @@
 import * as app from '.';
 import * as ncm from '@nestjs/common';
 import * as nsg from '@nestjs/swagger';
+import fetch from 'node-fetch';
 
 @ncm.Controller('api/remote')
 @ncm.UseInterceptors(app.ResponseLoggerInterceptor)
@@ -61,5 +62,20 @@ export class RemoteController {
     const cacheKey = `remote/stream/${model.url}`;
     const cacheTimeout = app.settings.core.cacheTimeoutStream;
     return await this.cacheService.getAsync(cacheKey, cacheTimeout, () => this.providerService.streamAsync(model.url));
+  }
+
+  @ncm.Get('m3u8')
+  @nsg.ApiResponse({status: 200})
+  @nsg.ApiResponse({status: 404})
+  async m3u8(@ncm.Query() model: app.api.RemoteQueryStream) {
+    const cacheKey = `remote/m3u8/${model.url}`;
+    const cacheTimeout = app.settings.core.cacheTimeoutStream;
+    return await this.cacheService.getAsync(cacheKey, cacheTimeout, async () => {
+      const stream = await this.providerService.streamAsync(model.url);
+      const source = stream.sources.shift();
+      const response = await fetch(source!.url);
+      const text = await response.text();
+      return text;
+    });
   }
 }
