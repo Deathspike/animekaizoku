@@ -74,8 +74,26 @@ export class RemoteController {
       const stream = await this.providerService.streamAsync(model.url);
       const source = stream.sources.shift();
       const response = await fetch(source!.url);
-      const text = await response.text();
-      return text;
+
+      const hls = app.HlsManifest.from(await response.text());
+
+      for (let i = 0; i < hls.length; i++) {
+        if (hls[i].type !== 'EXT-X-STREAM-INF') continue;
+
+        const lines = stream.subtitles
+          .filter(x => x.language === 'en-US')
+          .map(x => {
+          return `#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subtitles",NAME="caption_1",DEFAULT=YES,AUTOSELECT=YES,FORCED=NO,LANGUAGE="eng",URI="${x.url}"`;
+          // return `#EXTVLCOPT:input-slave="${x.url}"`;
+          });
+
+        hls[i].params['SUBTITLES'] = 'subtitles';
+        hls.splice(i, 0, ...lines.map(x => app.HlsManifestLine.from(x)));
+        break;
+      }
+
+      console.log(hls.toString());
+      return hls.toString();
     });
   }
 }

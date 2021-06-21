@@ -19,6 +19,7 @@ export * from './remote/RemoteApi';
 export * from './rewrite/params/RewriteParamEmulate';
 export * from './rewrite/params/RewriteParamMaster';
 export * from './rewrite/params/RewriteParamMedia';
+export * from './rewrite/params/RewriteParamSubtitle';
 export * from './rewrite/RewriteApi';
 export * from './setting/models/SettingCore';
 export * from './setting/models/SettingCredential';

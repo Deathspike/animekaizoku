@@ -22,4 +22,11 @@ export class RewriteService {
     const safeQuery = querystring.stringify(headers);
     return new URL(`/api/rewrite/media/${safeMediaUrl}?${safeQuery}`, app.settings.server.url).toString();
   }
+
+  subtitleUrl(subtitleUrl: string, subtitleType: app.api.RemoteStreamSubtitle['type'], relativeUrl: string, headers?: Record<string, string>) {
+    const safeSubtitleType = encodeURIComponent(subtitleType);
+    const safeSubtitleUrl = encodeURIComponent(new URL(relativeUrl, subtitleUrl).toString());
+    const safeQuery = querystring.stringify(headers);
+    return new URL(`/api/rewrite/subtitle/${safeSubtitleType}/${safeSubtitleUrl}?${safeQuery}`, app.settings.server.url).toString();
+  }
 }

@@ -36,7 +36,7 @@ export class ComposeService {
         .then(x => x.reduce((p, c) => p.concat(c), []))
         .then(x => x.sort(app.api.RemoteStreamSource.compareFn)),
       subtitles: stream.subtitles.map(subtitle => new app.api.RemoteStreamSubtitle(subtitle, {
-        url: this.rewriteService.emulateUrl(baseUrl, subtitle.url, headers)
+        url: this.rewriteService.subtitleUrl(baseUrl, subtitle.type, subtitle.url, headers)
       }))
     });
   }

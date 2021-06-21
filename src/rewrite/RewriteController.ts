@@ -59,4 +59,32 @@ export class RewriteController {
       response.sendStatus(500);
     }
   }
+
+  @ncm.Get('subtitle/:subtitleType/:subtitleUrl')
+  async subtitleAsync(
+    @ncm.Headers() headers: Record<string, string>,
+    @ncm.Query() query: Record<string, string>,
+    @ncm.Param() params: app.api.RewriteParamSubtitle,
+    @ncm.Res() response: express.Response) {
+    delete headers['range'];
+    const result = await this.agentService.fetchAsync(new URL(params.subtitleUrl), {headers: {...headers, ...query}});
+    if (result.status === 200) {
+      switch (params.subtitleType) {
+        case 'ass':
+          response.type('text/x-ssa');
+          response.send(await result.text());
+          break;
+        case 'vtt':
+          response.type('text/vtt');
+          response.send(await result.text());
+          break;
+        default:
+          response.type('text/plain');
+          response.send(await result.text());
+          break;
+      }
+    } else {
+      response.sendStatus(500);
+    }
+  }
 }

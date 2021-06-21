@@ -25,4 +25,10 @@ export class RewriteApi {
     const url = new URL(`/api/rewrite/${encodeURIComponent(model.mediaUrl)}` + query, this.baseUrl);
     return await fetch(url);
   }
+
+  async subtitleAsync(model: api.RewriteParamSubtitle, headers?: Record<string, string>) {
+    const query = api.queryString(headers);
+    const url = new URL(`/api/rewrite/${encodeURIComponent(model.subtitleType)}/${encodeURIComponent(model.subtitleUrl)}` + query, this.baseUrl);
+    return await fetch(url);
+  }
 }
